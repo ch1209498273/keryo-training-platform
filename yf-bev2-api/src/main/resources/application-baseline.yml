@@ -1,0 +1,33 @@
+server:
+  port: ${BASELINE_BACKEND_PORT:9091}
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${BASELINE_DB_HOST:127.0.0.1}:${BASELINE_DB_PORT:3307}/${BASELINE_DB_NAME:exam_keryo_baseline}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: ${BASELINE_DB_USER:root}
+    password: ${BASELINE_DB_PASSWORD:}
+    hikari:
+      connection-timeout: 10000
+      maximum-pool-size: 10
+      minimum-idle: 1
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: "${BASELINE_REDIS_PASSWORD:}"
+      database: 0
+      timeout: 500ms
+      connect-timeout: 500ms
+  cache:
+    type: simple
+  quartz:
+    job-store-type: memory
+
+logging:
+  level:
+    root: warn
+    com.yf: info
+  file:
+    path: ${BASELINE_LOG_DIR:baseline-report/logs}
+

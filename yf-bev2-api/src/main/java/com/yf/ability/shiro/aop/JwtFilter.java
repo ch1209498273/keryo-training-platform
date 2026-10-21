@@ -1,0 +1,136 @@
+package com.yf.ability.shiro.aop;
+
+
+import com.yf.ability.Constant;
+import com.yf.ability.shiro.jwt.JwtToken;
+import com.yf.base.api.api.ApiError;
+import com.yf.base.api.api.ApiRest;
+import com.yf.base.utils.jackson.JsonHelper;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
+import java.util.Set;
+
+
+/**
+ * 鉴权登录拦截器
+ *
+ * @author bool
+ */
+@Slf4j
+public class JwtFilter extends BasicHttpAuthenticationFilter {
+
+    /**
+     * 跨域请求
+     */
+    private static final String CROSS_OPTIONS = "OPTIONS";
+
+    /**
+     * 特殊授权登录排除的URL前缀
+     */
+    private static final Set<String> EXCLUDED_URLS = Set.of(
+            "/api/sys/user/login",
+            "/api/sys/user/reg",
+            "/api/sys/user/forget-check",
+            "/api/sys/user/temporary-password",
+            "/api/sys/user/refresh"
+    );
+
+    /**
+     * 执行登录认证
+     *
+     * @param servletRequest
+     * @param servletResponse
+     * @param mappedValue
+     * @return
+     */
+    @Override
+    protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object mappedValue) {
+
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        //这几句代码是关键
+        if (CROSS_OPTIONS.equals(request.getMethod())) {
+            response.setStatus(HttpStatus.SC_NO_CONTENT);
+            // CORS 由 CorsFilter 根据显式 allow-list 统一处理；这里不再返回凭据 + *。
+            return true;
+        }
+
+        // URL地址
+        String url = request.getRequestURI();
+
+        // 特殊链接直接放行
+        if (EXCLUDED_URLS.contains(url)
+                || "/api/common/captcha/gen".equals(url)
+                || "/api/common/captcha/debug".equals(url)) {
+            return true;
+        }
+
+        return this.executeLogin(servletRequest, servletResponse);
+    }
+
+
+    @Override
+    protected boolean executeLogin(ServletRequest servletRequest, ServletResponse servletResponse) {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        String token = request.getHeader(Constant.TOKEN);
+
+        // 尝试从cookie中获取
+        if (StringUtils.isBlank(token)) {
+            Cookie [] cookies = request.getCookies();
+            if (cookies != null && cookies.length > 0) {
+                for (Cookie cookie : cookies) {
+                    if (Constant.TOKEN.equals(cookie.getName())) {
+                        token = cookie.getValue();
+                    }
+                }
+            }
+        }
+
+        if (!StringUtils.isBlank(token)) {
+            JwtToken jwtToken = new JwtToken(token);
+            // 提交给realm进行登入，如果错误他会抛出异常并被捕获
+            try {
+                getSubject(request, response).login(jwtToken);
+                return true;
+            } catch (Exception e) {
+                // 捕获异常并返回false即可，下一步给onAccessDenied去处理
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 执行授权错误时的方法
+     *
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        httpServletResponse.setCharacterEncoding("UTF-8");
+        httpServletResponse.setContentType("application/json");
+        httpServletResponse.setStatus(200);
+
+        // 写入错误信息
+        ApiRest<?> apiRest = new ApiRest(ApiError.ERROR_10010002);
+        httpServletResponse.getWriter().print(JsonHelper.toJson(apiRest));
+        return false;
+    }
+
+}
+

@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      # 出题材料可能是带图的 Word/Excel，放宽上传上限
+      max-file-size: 50MB
+      max-request-size: 60MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:exam_keryo}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 50
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      auto-commit: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+      timeout: 1000ms
+      connect-timeout: 500ms
+  # 本地无 Redis，Spring Cache 用内存实现
+  cache:
+    type: simple
+
+  quartz:
+    job-store-type: memory
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    root: info
+  file:
+    path: logs/
+
+# AI 出题：配置已迁移至数据库 el_keryo_ai_config（管理端「系统设置 → AI 设置」可换供应商/模型/Key）
+# 此处仅保留降级默认值（数据库无配置时兜底，不含 Key）
+# Runtime secret overrides: AI_<PROVIDER>_API_KEY, then AI_API_KEY. Never commit values.
+ai:
+  deepseek:
+    base-url: https://api.deepseek.com/chat/completions
+

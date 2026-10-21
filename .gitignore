@@ -1,0 +1,44 @@
+# Object file
+*.o
+
+# Ada Library Information
+*.ali
+*.log
+yf-exam-api/.idea/
+yf-exam-api/target/
+yf-bev2-vue/.idea/
+yf-bev2-api/target/
+yf-bev2-api/.idea/
+
+# 备份文件（含敏感数据，不进版本库）
+backups/
+# 构建产物与临时诊断
+build/jar_libs/
+build/*.log
+build/*.png
+build/*.txt
+diag_*.py
+*.gz.enc
+build/e2e_t05/
+.baseline/
+baseline-report/
+
+# Public repository safety: local secrets, runtime output and caches
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+logs/
+**/logs/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Local database exports and migration scratch files
+yf_boot_exam.sql
+build/sql_*.sql
+

@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+# JWT 签名密钥只从运行环境注入；dev 未提供时由启动器生成本次进程临时密钥。
+keryo:
+  security:
+    jwt-secret: ${KERYO_JWT_SECRET:}
+    sync-secret: ${KERYO_SYNC_SECRET:}
+    allowed-origins: ${KERYO_ALLOWED_ORIGINS:http://localhost:8000,http://127.0.0.1:8000}
+    captcha-debug-enabled: ${KERYO_CAPTCHA_DEBUG_ENABLED:false}
+    user-import-initial-password: ${KERYO_SECURITY_USER_IMPORT_INITIAL_PASSWORD:}
+
+spring:
+  application:
+    name: yf-boot-api
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+    deserialization:
+      fail_on_unknown_properties: false
+      accept-empty-string-as-null-object: true
+    parser:
+      # 允许出现特殊字符和转义符
+      allow_unquoted_control_chars: true
+      #允许出现单引号
+      allow_single_quotes: true
+    serialization:
+      fail-on-empty-beans: false
+    mapper:
+      # 支持类型转换
+      allow-coercion-of-scalars: true
+
+

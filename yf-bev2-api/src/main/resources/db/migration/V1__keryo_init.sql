@@ -1,0 +1,28 @@
+INSERT INTO el_sys_role (id, role_name, data_scope, role_level, remark) VALUES ('keryo_director','总监',4,100,'全部分中心');
+INSERT INTO el_sys_role (id, role_name, data_scope, role_level, remark) VALUES ('keryo_supervisor','区域督导',3,80,'所辖多家中心');
+INSERT INTO el_sys_role (id, role_name, data_scope, role_level, remark) VALUES ('keryo_head_nurse','医护长',2,60,'本中心全部数据');
+INSERT INTO el_sys_role (id, role_name, data_scope, role_level, remark) VALUES ('keryo_nurse','一线医护',1,40,'仅本人数据');
+INSERT INTO el_sys_role (id, role_name, data_scope, role_level, remark) VALUES ('keryo_assistant','助理管理员',4,90,'系统管理+全部数据');
+UPDATE el_sys_role SET remark = CONCAT(remark, ' [已停用]') WHERE id IN ('admin', 'user');
+INSERT IGNORE INTO el_sys_role_menu (id, role_id, menu_id) SELECT REPLACE(UUID(), '-', ''), 'keryo_assistant', menu_id FROM el_sys_role_menu WHERE role_id = 'admin';
+INSERT IGNORE INTO el_sys_role_menu (id, role_id, menu_id) SELECT REPLACE(UUID(), '-', ''), 'keryo_nurse', id FROM el_sys_menu WHERE name IN ('ClientExam', 'UCenter');
+INSERT IGNORE INTO el_sys_role_menu (id, role_id, menu_id) SELECT REPLACE(UUID(), '-', ''), 'keryo_head_nurse', id FROM el_sys_menu WHERE name IN ('ClientExam', 'UCenter', 'HomeRepo', 'HomeExam');
+INSERT IGNORE INTO el_sys_role_menu (id, role_id, menu_id) SELECT REPLACE(UUID(), '-', ''), r.id, m.id FROM el_sys_role r CROSS JOIN el_sys_menu m WHERE r.id IN ('keryo_director', 'keryo_supervisor');
+UPDATE el_sys_depart SET dept_name = '总部', dept_code = 'KERYO' WHERE id = '1441328268501381121';
+DELETE FROM el_sys_depart WHERE parent_id = '1441328268501381121';
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c01', 1, '1441328268501381121', '第一中心', 'KERYO_C01', 1, 1);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c02', 1, '1441328268501381121', '第二中心', 'KERYO_C02', 1, 2);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c03', 1, '1441328268501381121', '第三中心', 'KERYO_C03', 1, 3);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c04', 1, '1441328268501381121', '第四中心', 'KERYO_C04', 1, 4);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c05', 1, '1441328268501381121', '第五中心', 'KERYO_C05', 1, 5);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c06', 1, '1441328268501381121', '第六中心', 'KERYO_C06', 1, 6);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c07', 1, '1441328268501381121', '第七中心', 'KERYO_C07', 1, 7);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c08', 1, '1441328268501381121', '第八中心', 'KERYO_C08', 1, 8);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c09', 1, '1441328268501381121', '第九中心', 'KERYO_C09', 1, 9);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c10', 1, '1441328268501381121', '第十中心', 'KERYO_C10', 1, 10);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c11', 1, '1441328268501381121', '第十一中心', 'KERYO_C11', 1, 11);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c12', 1, '1441328268501381121', '第十二中心', 'KERYO_C12', 1, 12);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c13', 1, '1441328268501381121', '第十三中心', 'KERYO_C13', 1, 13);
+INSERT INTO el_sys_depart (id, dept_type, parent_id, dept_name, dept_code, dept_level, sort) VALUES ('keryo_c14', 1, '1441328268501381121', '第十四中心', 'KERYO_C14', 1, 14);
+UPDATE el_sys_user_role SET role_id = 'keryo_assistant' WHERE user_id = '1000000000000000001';
+
